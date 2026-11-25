@@ -11,6 +11,8 @@ dist/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 agents-python/.env
 agents-python/chat/.env
 
@@ -39,3 +41,9 @@ plan/
 # AI assistant local instructions
 CLAUDE.md
 AGENTS.md
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
+  

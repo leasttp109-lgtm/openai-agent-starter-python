@@ -24,7 +24,12 @@ from openai.types.responses import ResponseTextDeltaEvent
 from agents import Agent, OpenAIChatCompletionsModel, Runner
 
 from .._logger import create_logger
-from .._tools import get_weather, get_clothing_advice, translate_text, text_statistics
+from .._tools import (
+    resolve_location,
+    search_nearby_malls,
+    check_shops_in_mall,
+    compute_travel_distances,
+)
 
 
 load_dotenv()
@@ -46,13 +51,31 @@ llm_model = OpenAIChatCompletionsModel(
 
 # ========== Agent ==========
 agent = Agent(
-    name="Assistant",
+    name="出行决策助手",
     instructions=(
-        "You are an EdgeOne Makers OpenAI Agents SDK (Python) starter example: an out-of-the-box Agent template that helps developers quickly run through and validate platform capabilities.\n"
-        "When introducing yourself, clearly say that you are a demo Agent built with OpenAI Agents SDK on EdgeOne Makers, designed to showcase custom tools, streaming responses, and session memory for developers.\n"
-        "Use the four custom tools when they help you answer the user concretely. Otherwise answer directly and keep the response brief."
+        "你是一个出行决策 Agent，运行在 EdgeOne Makers 上，基于腾讯位置服务（合规地图数据源）帮助用户做「去哪儿」的决策。\n"
+        "用户会告诉你当前位置，以及想去的商场需要满足的条件（例如：附近既有 A 品牌又有 B 品牌的商场）。\n\n"
+        "标准工作流（务必按顺序调用工具，不要凭空编造地点或店铺）：\n"
+        "1. 调用 resolve_location 把用户描述的位置解析成经纬度。\n"
+        "2. 调用 search_nearby_malls 以该坐标检索附近商场，拿到候选列表（含每个商场的 id/name/lat/lng）。\n"
+        "3. 对候选商场（最多取直线距离最近的 5~8 个）逐一调用 check_shops_in_mall，"
+        "传入商场 id/name/lat/lng 与用户指定的店铺关键词，判断哪些商场同时满足全部条件。\n"
+        "4. 把满足条件的商场组成 JSON 数组，调用 compute_travel_distances 计算真实路面距离与耗时"
+        "（用户没说交通方式时默认 walking）。\n"
+        "5. 依据真实距离和耗时排序，给出推荐结论：首选 + 备选，用中文说明每个商场离多远、"
+        "包含哪些目标店铺、大约走多久，并给出简短建议。\n\n"
+        "处理规则：\n"
+        "- 若任何工具返回 ok=false 且提示缺少地图 Key，请原样把错误与 hint 告知用户，不要伪造结果。\n"
+        "- 若用户没给城市，且位置解析可信度低，先向用户追问城市再继续。\n"
+        "- 若没有商场同时满足全部店铺条件，明确说明，并列出「部分满足」的商场供用户取舍。\n"
+        "- 回答保持简洁、口语化，直接给结论，避免复述工具JSON原文。"
     ),
-    tools=[get_weather, get_clothing_advice, translate_text, text_statistics],
+    tools=[
+        resolve_location,
+        search_nearby_malls,
+        check_shops_in_mall,
+        compute_travel_distances,
+    ],
     model=llm_model,
 )
 

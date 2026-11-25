@@ -58,20 +58,20 @@ export default function CodeViewer() {
           <L n={4}><Cmt t="# 1. Define tools with @function_tool" /></L>
           <L n={5}><Dec t="@function_tool" /></L>
           <L n={6}>
-            <Kw t="def " /><Fn t="get_weather" /><Op t="(" />
-            <Va t="city" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"The city to get weather for"' />
+            <Kw t="def " /><Fn t="resolve_location" /><Op t="(" />
+            <Va t="location_text" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
+            <Ty t="str" /><Op t=", " /><Str t='"Location text, e.g. Honglian South Rd station"' />
             <Op t="]) -> " /><Ty t="str" /><Op t=":" />
           </L>
           <L n={7}>
-            <I1><Doc t='"""Get the current weather for a specified city."""' /></I1>
+            <I1><Doc t='"""Resolve a text location to latitude/longitude."""' /></I1>
           </L>
           <L n={8}>
             <I1><Cmt t="# ..." /></I1>
           </L>
           <L n={9} />
           <L n={10}>
-            <Va t="TOOLS" /><Op t=" = [" /><Fn t="get_weather" /><Op t=", " /><Cmt t="# More tools..." /><Op t="]" />
+            <Va t="TOOLS" /><Op t=" = [" /><Fn t="resolve_location" /><Op t=", " /><Cmt t="# + 3 more..." /><Op t="]" />
           </L>
           <L n={11} />
 
